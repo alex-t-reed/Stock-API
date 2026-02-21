@@ -1,37 +1,114 @@
-# Portfolio Tracker
+# Stock Price REST API
 
-Built with Python and Node.js (Express + EJS)
+A lightweight REST API built with **FastAPI** that fetches real-time stock prices
+by scraping Yahoo Finance, with CNN Markets as a fallback.
 
-## Python Stock API
+---
 
-This project includes a Python API to fetch the current price of a specific stock by scraping Yahoo Finance and CNN Markets as a fallback.
+## Setup
 
-### Requirements
-- Python 3.x
-- requests
-- beautifulsoup4
-
-Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Usage Example
-To fetch and print the price of AAPL, run:
+## Running the server
+
 ```bash
-python test.py
+uvicorn app:app --reload
 ```
 
-This will print the current prices for AAPL, GOOGL, AMZN, and TSLA, and handle errors gracefully.
+The API will be available at `http://localhost:8000`.
 
-### API
-- `get_stock_price(symbol: str) -> float`: Fetches the current price for the given stock symbol. Raises an exception if the price cannot be fetched.
+---
 
-### Unit Testing
-To run unit tests:
+## Endpoints
+
+### `GET /health`
+Liveness check.
+
+```bash
+curl http://localhost:8000/health
+# {"status":"ok"}
+```
+
+---
+
+### `GET /stocks/{symbol}`
+Fetch the current price for a single ticker.
+
+```bash
+curl http://localhost:8000/stocks/AAPL
+```
+
+```json
+{
+  "symbol": "AAPL",
+  "price": 189.42,
+  "currency": "USD",
+  "fetched_at": 1713900000.123
+}
+```
+
+**Error responses:**
+| Status | Reason |
+|--------|--------|
+| `400`  | Empty or invalid symbol format |
+| `404`  | Price could not be fetched (symbol unknown or scraping failed) |
+
+---
+
+### `GET /stocks?symbols=A,B,C`
+Fetch prices for multiple tickers in one concurrent request.
+
+```bash
+curl "http://localhost:8000/stocks?symbols=AAPL,GOOGL,TSLA"
+```
+
+```json
+{
+  "results": [
+    {"symbol": "AAPL",  "price": 189.42, "currency": "USD", "fetched_at": 1713900000.1},
+    {"symbol": "GOOGL", "price": 174.11, "currency": "USD", "fetched_at": 1713900000.2},
+    {"symbol": "TSLA",  "price": 162.50, "currency": "USD", "fetched_at": 1713900000.3}
+  ],
+  "errors": {}
+}
+```
+
+Failed symbols appear in `errors` rather than aborting the whole batch:
+
+```json
+{
+  "results": [{"symbol": "AAPL", "price": 189.42, ...}],
+  "errors": {"BADTICKER": "Could not fetch price for symbol: 'BADTICKER'"}
+}
+```
+
+---
+
+## Interactive Docs
+
+FastAPI ships with auto-generated docs at:
+- **Swagger UI** → `http://localhost:8000/docs`
+- **ReDoc**       → `http://localhost:8000/redoc`
+
+---
+
+## Running Tests
+
 ```bash
 python -m unittest test_stock_api.py
 ```
 
-### Error Handling
-If the price cannot be fetched, an exception is raised and handled in the test scripts.
+---
+
+## Project Structure
+
+```
+.
+├── app.py            # FastAPI application & routes
+├── stock_api.py      # Scraping logic
+├── test_stock_api.py # Unit tests
+├── requirements.txt
+└── README.md
+```
