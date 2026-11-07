@@ -1,7 +1,7 @@
 # Stock Price REST API
 
 A lightweight REST API built with **FastAPI** that fetches real-time stock prices
-by scraping Yahoo Finance, with CNN Markets as a fallback.
+by scraping Yahoo Finance, with CNN Markets as a fallback. This is a Python/FastAPI learning project demonstrating API routes, response schemas, validation, and concurrent I/O.
 
 ---
 
@@ -112,3 +112,15 @@ python -m unittest test_stock_api.py
 ├── requirements.txt
 └── README.md
 ```
+
+## Scope and limitations
+
+Upstream page changes, rate limits, and network failures can break scraping. Returned prices are not guaranteed to be current or suitable for trading. The timestamp indicates when this API fetched a result, not when an exchange published it. This prototype does not include production authentication, rate limiting, or persistent caching. Run the development server locally.
+
+## About and contact
+
+Created by [Alex Reed](https://www.linkedin.com/in/alextreed/). Explore my [portfolio](https://alex-t-reed.github.io/) for project context and career interests. Professional inquiries are welcome through LinkedIn.
+
+## What I learned
+
+I practiced separating retrieval logic from API routes, validating inputs, defining response schemas, and handling failures without losing an entire batch. The project also illustrates the maintenance tradeoff of depending on scraped third-party pages.
